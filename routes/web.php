@@ -1,19 +1,21 @@
 <?php
 
-use App\Http\Controllers\ComicController;
-
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ComicController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/comics/filter', [ComicController::class, 'filter'])->name('comics.filter');
+Route::get('/whoami', function () {
+    return 'Jefferson T. Panti| 2023-70948 | Block 4C | ITRACKB4 Laravel 12';
+});
 
-Route::get('/comics/filter/{genre?}', [ComicController::class, 'filter'])->name('comics.filter');
+Route::get('/comics/featured', [ComicController::class, 'featured'])
+    ->name('comics.featured');
 
-Route::get('/comics', [ComicController::class, 'index'])->name('comics.index');
+Route::get('/comics/filter/{genre?}', [ComicController::class, 'filter'])
+    ->name('comics.filter');
 
-Route::get('/comics/{id?}', [ComicController::class, 'show'])->name('comics.show');
-
-
+Route::resource('comics', ComicController::class)
+    ->only(['index', 'show']);
