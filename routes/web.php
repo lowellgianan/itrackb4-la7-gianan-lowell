@@ -8,7 +8,7 @@ Route::get('/', function () {
 });
 
 Route::get('/whoami', function () {
-    return 'Jefferson T. Panti| 2023-70948 | Block 4C | ITRACKB4 Laravel 12';
+    return 'Lowell T. Gianan | 2020-05213 | Block 4C | ITRACKB4 Laravel 12';
 });
 
 Route::get('/comics/featured', [ComicController::class, 'featured'])
