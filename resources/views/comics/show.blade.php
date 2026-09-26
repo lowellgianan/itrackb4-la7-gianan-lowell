@@ -1,17 +1,31 @@
 @extends('layouts.app')
 
-@section('title', 'Show Comics')
+@section('title', $comic['title'])
 
 @section('content')
 
-    <div class="card p-4 m-4">
-        <h4>Comic: {{ $comic['title'] }}</h4>
-        <p><strong>Author:</strong> {{ $comic['author'] }}</p>
-        <p><strong>Genre:</strong> {{ $comic['genre'] }}</p>
-        <p><strong>Chapters:</strong> {{ $comic['chapter'] }}</p>
-        <p><strong>Complete:</strong> {{ $comic['is_complete'] ? 'Yes' : 'No' }}</p>
+    <div class="mb-3">
+        <a href="{{ route('comics.index') }}" class="btn btn-sm btn-outline-secondary">
+            ← Back to Comics List
+        </a>
     </div>
 
-    <button class="btn btn-secondary"><a href="{{ route('comics.index') }}" class="text-decoration-none text-white">Back</a></button>
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3>{{ $comic['title'] }}</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Author:</strong> {{ $comic['author'] }}</p>
+            <p><strong>Genre:</strong> {{ $comic['genre'] }}</p>
+            <p><strong>Year Released:</strong> {{ $comic['year'] }}</p>
+            <p><strong>Status:</strong> 
+                @if ($comic['is_complete'])
+                    <span class="badge bg-success">Complete</span>
+                @else
+                    <span class="badge bg-warning text-dark">Ongoing</span>
+                @endif
+            </p>
+        </div>
+    </div>
 
 @endsection

@@ -7,7 +7,7 @@
 </head>
 <body class="container text-bg-dark">
     
-    <h1 class="text-center p-4">My Comic </h1>
+    <h1 class="text-center p-4">My Comic Site</h1>
     <p>Prepared by: Lowell T. Gianan </p>
     @include('partials._nav')
     @yield('content')

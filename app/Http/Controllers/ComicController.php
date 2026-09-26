@@ -9,9 +9,28 @@ class ComicController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('comics.index', ['comics' => $this->comics()]);
+        $genre = $request->query('genre', 'all');
+        $year = $request->query('year', 'all');
+
+        $allComics = $this->comics();
+        $comics = [];
+
+        foreach ($allComics as $comic) {
+            $matchesGenre = ($genre === 'all' || $comic['genre'] === $genre);
+            $matchesYear = ($year === 'all' || (string)$comic['year'] === (string)$year);
+
+            if ($matchesGenre && $matchesYear) {
+                $comics[] = $comic;
+            }
+        }
+
+        return view('comics.index', [
+            'comics' => $comics,
+            'genre' => $genre,
+            'year' => $year,
+        ]);
     }
 
     /**
@@ -37,10 +56,10 @@ class ComicController extends Controller
     {
         $comics = $this->comics();
 
-        if (!isset($comics[$id]))
-        {
+        if (!isset($comics[$id])) {
             abort(404);
         }
+
         return view('comics.show', ['comic' => $comics[$id]]);
     }
 
@@ -68,42 +87,28 @@ class ComicController extends Controller
         //
     }
 
-    public function featured()
-    {
-        $comics = $this->comics();
-        $comic = $comics[1];
-
-        return view('comics.featured', ['comic' => $comic]);
-    }
-
-    public function filter($genre = null)
+    /**
+     * Display a featured resource.
+     */
+    public function feature()
     {
         $comics = $this->comics();
 
-        if ($genre === null) {
-            return view('comics.filter', ['comics' => $comics, 'genre' => null]);
-        }
-
-        $filteredComics = [];
-
-        foreach ($comics as $comic) {
-            if (strcasecmp($comic['genre'], $genre) === 0) {
-                $filteredComics[] = $comic;
-            }
-        }
-
-        return view('comics.filter', ['comics' => $filteredComics, 'genre' => $genre]);
+        return view('comics.feature', ['comic' => $comics[1]]);
     }
 
+    /**
+     * Private helper returning the list of comics.
+     */
     private function comics()
     {
         return [
-            1 => ['id' => 1, 'title' => 'One Piece', 'author' => 'Eiichiro Oda', 'genre' => 'Adventure', 'chapter' => 1120, 'is_complete' => false],
-            2 => ['id' => 2, 'title' => 'Attack on Titan', 'author' => 'Hajime Isayama', 'genre' => 'Dark Fantasy', 'chapter' => 139, 'is_complete' => true],
-            3 => ['id' => 3, 'title' => 'Chainsaw Man', 'author' => 'Tatsuki Fujimoto', 'genre' => 'Action', 'chapter' => 175, 'is_complete' => false],
-            4 => ['id' => 4, 'title' => 'Naruto', 'author' => 'Masashi Kishimoto', 'genre' => 'Action', 'chapter' => 700, 'is_complete' => true],
-            5 => ['id' => 5, 'title' => 'Death Note', 'author' => 'Tsugumi Ohba', 'genre' => 'Psychological', 'chapter' => 108, 'is_complete' => true],
-            6 => ['id' => 6, 'title' => 'Spy x Family', 'author' => 'Tatsuya Endo', 'genre' => 'Comedy', 'chapter' => 100, 'is_complete' => false],
+            1 => ['id' => 1, 'title' => 'One Piece', 'author' => 'Eiichiro Oda', 'genre' => 'Adventure', 'year' => '1997', 'is_complete' => false],
+            2 => ['id' => 2, 'title' => 'Attack on Titan', 'author' => 'Hajime Isayama', 'genre' => 'Dark Fantasy', 'year' => '2009', 'is_complete' => true],
+            3 => ['id' => 3, 'title' => 'Chainsaw Man', 'author' => 'Tatsuki Fujimoto', 'genre' => 'Action', 'year' => '2018', 'is_complete' => false],
+            4 => ['id' => 4, 'title' => 'Naruto', 'author' => 'Masashi Kishimoto', 'genre' => 'Action', 'year' => '1999', 'is_complete' => true],
+            5 => ['id' => 5, 'title' => 'Death Note', 'author' => 'Tsugumi Ohba', 'genre' => 'Psychological', 'year' => '2003', 'is_complete' => true],
+            6 => ['id' => 6, 'title' => 'Spy x Family', 'author' => 'Tatsuya Endo', 'genre' => 'Comedy', 'year' => '2019', 'is_complete' => false],
         ];
     }
 }
