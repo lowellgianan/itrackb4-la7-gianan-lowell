@@ -143,12 +143,12 @@ class ComicController extends Controller
 
         if (!file_exists($path)) {
             $defaultComics = [
-                ['id' => 1, 'title' => 'One Piece', 'author' => 'Eiichiro Oda', 'genre' => 'Adventure', 'year' => '1997', 'is_complete' => false],
-                ['id' => 2, 'title' => 'Attack on Titan', 'author' => 'Hajime Isayama', 'genre' => 'Dark Fantasy', 'year' => '2009', 'is_complete' => true],
-                ['id' => 3, 'title' => 'Chainsaw Man', 'author' => 'Tatsuki Fujimoto', 'genre' => 'Action', 'year' => '2018', 'is_complete' => false],
-                ['id' => 4, 'title' => 'Naruto', 'author' => 'Masashi Kishimoto', 'genre' => 'Action', 'year' => '1999', 'is_complete' => true],
-                ['id' => 5, 'title' => 'Death Note', 'author' => 'Tsugumi Ohba', 'genre' => 'Psychological', 'year' => '2003', 'is_complete' => true],
-                ['id' => 6, 'title' => 'Spy x Family', 'author' => 'Tatsuya Endo', 'genre' => 'Comedy', 'year' => '2019', 'is_complete' => false],
+                ['id' => 1, 'title' => 'Demon Slayer', 'author' => 'Koyoharu Gotouge', 'genre' => 'Action', 'year' => '2016', 'is_complete' => true],
+                ['id' => 2, 'title' => 'Jujutsu Kaisen', 'author' => 'Gege Akutami', 'genre' => 'Supernatural', 'year' => '2018', 'is_complete' => true],
+                ['id' => 3, 'title' => 'My Hero Academia', 'author' => 'Kohei Horikoshi', 'genre' => 'Action', 'year' => '2014', 'is_complete' => true],
+                ['id' => 4, 'title' => 'Fullmetal Alchemist', 'author' => 'Hiromu Arakawa', 'genre' => 'Adventure', 'year' => '2001', 'is_complete' => true],
+                ['id' => 5, 'title' => 'Tokyo Revengers', 'author' => 'Ken Wakui', 'genre' => 'Action', 'year' => '2017', 'is_complete' => true],
+                ['id' => 6, 'title' => 'Kaiju No. 8', 'author' => 'Naoya Matsumoto', 'genre' => 'Action', 'year' => '2020', 'is_complete' => false]
             ];
 
             $this->saveComics($defaultComics);
