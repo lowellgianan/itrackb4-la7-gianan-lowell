@@ -14,22 +14,19 @@ class ComicController extends Controller
         $genre = $request->query('genre', 'all');
         $year = $request->query('year', 'all');
 
-        $allComics = $this->comics();
-        $comics = [];
-
-        foreach ($allComics as $comic) {
-            $matchesGenre = ($genre === 'all' || $comic['genre'] === $genre);
-            $matchesYear = ($year === 'all' || (string)$comic['year'] === (string)$year);
-
-            if ($matchesGenre && $matchesYear) {
-                $comics[] = $comic;
-            }
-        }
+        $comics = collect($this->comics())
+            ->when($genre !== 'all' && $genre !== '', function ($query) use ($genre) {
+                return $query->where('genre', $genre);
+            })
+            ->when($year !== 'all' && $year !== '', function ($query) use ($year) {
+                return $query->where('year', (string) $year);
+            })
+            ->values();
 
         return view('comics.index', [
             'comics' => $comics,
-            'genre' => $genre,
-            'year' => $year,
+            'genre'  => $genre,
+            'year'   => $year,
         ]);
     }
 
@@ -38,7 +35,7 @@ class ComicController extends Controller
      */
     public function create()
     {
-        //
+        return view('comics.create');
     }
 
     /**
@@ -46,7 +43,31 @@ class ComicController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title'       => 'required|string|max:255',
+            'author'      => 'required|string|max:255',
+            'genre'       => 'required|string|max:255',
+            'year'        => 'required|numeric',
+            'is_complete' => 'nullable|boolean',
+        ]);
+
+        $validated['is_complete'] = $request->boolean('is_complete');
+
+        $comics = $this->comics();
+
+        $nextId = empty($comics)
+            ? 1
+            : max(array_column($comics, 'id')) + 1;
+
+        $validated['id'] = $nextId;
+
+        $comics[] = $validated;
+
+        $this->saveComics($comics);
+
+        return redirect()
+            ->route('comics.index')
+            ->with('success', 'Comic added successfully!');
     }
 
     /**
@@ -56,11 +77,13 @@ class ComicController extends Controller
     {
         $comics = $this->comics();
 
-        if (!isset($comics[$id])) {
+        $comic = collect($comics)->firstWhere('id', (int) $id);
+
+        if (!$comic) {
             abort(404);
         }
 
-        return view('comics.show', ['comic' => $comics[$id]]);
+        return view('comics.show', compact('comic'));
     }
 
     /**
@@ -94,7 +117,13 @@ class ComicController extends Controller
     {
         $comics = $this->comics();
 
-        return view('comics.feature', ['comic' => $comics[1]]);
+        $comic = collect($comics)->firstWhere('id', 1);
+
+        if (!$comic) {
+            abort(404);
+        }
+
+        return view('comics.feature', compact('comic'));
     }
 
     /**
@@ -102,13 +131,47 @@ class ComicController extends Controller
      */
     private function comics()
     {
-        return [
-            1 => ['id' => 1, 'title' => 'One Piece', 'author' => 'Eiichiro Oda', 'genre' => 'Adventure', 'year' => '1997', 'is_complete' => false],
-            2 => ['id' => 2, 'title' => 'Attack on Titan', 'author' => 'Hajime Isayama', 'genre' => 'Dark Fantasy', 'year' => '2009', 'is_complete' => true],
-            3 => ['id' => 3, 'title' => 'Chainsaw Man', 'author' => 'Tatsuki Fujimoto', 'genre' => 'Action', 'year' => '2018', 'is_complete' => false],
-            4 => ['id' => 4, 'title' => 'Naruto', 'author' => 'Masashi Kishimoto', 'genre' => 'Action', 'year' => '1999', 'is_complete' => true],
-            5 => ['id' => 5, 'title' => 'Death Note', 'author' => 'Tsugumi Ohba', 'genre' => 'Psychological', 'year' => '2003', 'is_complete' => true],
-            6 => ['id' => 6, 'title' => 'Spy x Family', 'author' => 'Tatsuya Endo', 'genre' => 'Comedy', 'year' => '2019', 'is_complete' => false],
-        ];
+        return $this->getComics();
+    }
+
+    /**
+     * Get comics from JSON storage.
+     */
+    private function getComics()
+    {
+        $path = storage_path('app/comics.json');
+
+        if (!file_exists($path)) {
+            $defaultComics = [
+                ['id' => 1, 'title' => 'One Piece', 'author' => 'Eiichiro Oda', 'genre' => 'Adventure', 'year' => '1997', 'is_complete' => false],
+                ['id' => 2, 'title' => 'Attack on Titan', 'author' => 'Hajime Isayama', 'genre' => 'Dark Fantasy', 'year' => '2009', 'is_complete' => true],
+                ['id' => 3, 'title' => 'Chainsaw Man', 'author' => 'Tatsuki Fujimoto', 'genre' => 'Action', 'year' => '2018', 'is_complete' => false],
+                ['id' => 4, 'title' => 'Naruto', 'author' => 'Masashi Kishimoto', 'genre' => 'Action', 'year' => '1999', 'is_complete' => true],
+                ['id' => 5, 'title' => 'Death Note', 'author' => 'Tsugumi Ohba', 'genre' => 'Psychological', 'year' => '2003', 'is_complete' => true],
+                ['id' => 6, 'title' => 'Spy x Family', 'author' => 'Tatsuya Endo', 'genre' => 'Comedy', 'year' => '2019', 'is_complete' => false],
+            ];
+
+            $this->saveComics($defaultComics);
+
+            return $defaultComics;
+        }
+
+        return json_decode(
+            file_get_contents($path),
+            true
+        ) ?? [];
+    }
+
+    /**
+     * Save comics to JSON storage.
+     */
+    private function saveComics(array $comics)
+    {
+        $path = storage_path('app/comics.json');
+
+        file_put_contents(
+            $path,
+            json_encode(array_values($comics), JSON_PRETTY_PRINT)
+        );
     }
 }

@@ -6,6 +6,21 @@
 
     <h2 class="mb-3">List of Recommendations</h2>
 
+    <!-- Add Comic Button -->
+    <div class="mb-3">
+        <a href="{{ route('comics.create') }}" class="btn btn-primary">
+            Add Comic
+        </a>
+    </div>
+
+    <!-- Success Message Alert (lalabas kapag nakapag-add ng bagong comic) -->
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Active Filters Badge -->
     <div class="alert alert-light border d-flex justify-content-between align-items-center mb-3">
         <div>
